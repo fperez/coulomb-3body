@@ -1,0 +1,735 @@
+%% This document created by Scientific Word (R) Version 2.0
+
+
+\documentclass[thmsa]{article}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{sw20lart}
+
+%TCIDATA{TCIstyle=Article/art4.lat,lart,article}
+
+\input tcilatex
+\QQQ{Language}{
+American English
+}
+
+\begin{document}
+
+\title{Classical Trajectories in Coulomb Three Body Systems\\
+Trayectorias Cl\'asicas en Sistemas Coulombianos de Tres Cuerpos}
+\author{Fernando P\'erez \\
+%EndAName
+Departamento de F\'\i sica\\
+Universidad de Antioquia\\
+A.A. 1226\\
+Medell\'\i n, Colombia\\
+e-mail: fperez@uniandes.edu.co \and Jorge Mahecha \\
+%EndAName
+Departamento de F\'\i sica\\
+Universidad de Antioquia\\
+A.A. 1226\\
+Medell\'\i n, Colombia\\
+e-mail: mahecha@fisica.udea.edu.co}
+\date{}
+\maketitle
+
+\begin{abstract}
+A computer program for calculating orbits and Poincar\'e sections in the
+classical Coulomb Three Body Problem with arbitrary masses and charges in
+three dimensional space is presented. The regularization procedure necessary
+to obtain a reliable numerical integration of the equations of motion is
+sketched. Different configurations of the Helium atom and the Positronium
+negative ion ($Ps^{-}$), obtained with the program, are analyzed.
+
+\medskip\ 
+
+\begin{center}
+\textbf{Resumen}
+\end{center}
+
+Se presenta un programa de computador para calcular \'orbitas y secciones de
+Poincar\'e en el Problema de los Tres Cuerpos Coulombiano cl\'asico, con
+masas y cargas arbitrarias. Se esboza el procedimiento de regularizaci\'on
+necesario para obtener una integraci\'on num\'erica confiable de las
+ecuaciones de movimiento. Se analizan diferentes configuraciones obtenidas
+con el programa para el \'atomo de Helio y el ion negativo de Positronio ($%
+Ps^{-}$).
+
+PACS: 31.15.+q; 31.10.+z; 36.10.Dr.
+\end{abstract}
+
+\section{Introduction}
+
+The Three Body Problem (TBP), stated as the study of the evolution of three
+point-like particles whose interaction is gravitational or electrostatic in
+an otherwise empty space, is a long time classic and perhaps one of the most
+frequently tackled challenges of mathematical physics.
+
+However, the non-integrable character of the problem renders useless the
+attempt of finding a function of time describing the three particles'
+evolution after starting from arbitrary initial conditions. This forces the
+adoption of other strategies, mainly:
+
+\begin{enumerate}
+\item[(a)]  A qualitative approach where questions of topological character
+concerning the solutions are addressed.
+
+\item[(b)]  Attempts to obtain analytical solutions to cases in which
+certain symmetries (geometrical, dynamical or both) permit simplifications
+to be performed.
+
+\item[(c)]  Numerical solutions to cases ranging from restricted ones such
+as those mentioned in (b) to the most general one where all parameters can
+be varied.
+\end{enumerate}
+
+In this work, we shall present a computer program developed in the language
+C++, which calculates orbits for the electrostatic TBP with arbitrary
+masses, charges, and initial conditions in three dimensional space.
+
+After introducing the geometry and notation of our problem, we shall sketch
+the necessary mathematical tools for integrating the equations of motion of
+the TBP, in a fashion that reliably handles the singularities associated to
+the Coulomb potential in binary collisions. We will then present some
+details concerning the program itself, and will finish with some results
+obtained with it on the helium atom and the positronium negative ion ($%
+Ps^{-} $)\allowbreak \allowbreak .
+
+At this point it should perhaps be noted that, even though these are systems
+which in rigor should be treated quantum mechanically, theoretical
+developments from the last few decades have shown the relevance of a
+detailed knowledge of the \emph{classical} behavior of non-integrable
+systems in the analysis of many purely quantum aspects (see esp. \cite
+{Gutzwiller}, but also \cite{Delande}, \cite{Nauenberg}).
+
+\section{The three body Hamiltonian}
+
+Let us then consider a system consisting of three point particles with
+masses $m_i$ and charges $Z_i$ ($i=1,2,3$) interacting through a Coulomb
+potential in free space. The coordinates and momenta of particle 1 will be
+described by the vectors $\mathbf{q}_1^{\prime }=\left( q_1^{\prime
+},q_2^{\prime },q_3^{\prime }\right) $ and $\mathbf{p}_1^{\prime }=\left(
+p_1^{\prime },p_2^{\prime },p_3^{\prime }\right) $ respectively, with
+analogous expressions ---adjusting the indices accordingly--- for the other
+two. The geometry of the problem is illustrated in Fig. 1, where the
+inter-particle distances $R$, $R_1$ and $R_2$ are indicated.
+
+Since a system with all three charges of equal sign is of no physical
+interest when looking for bound states, we assume without loss of generality
+that particles 1 and 2 have charges $-Z_1$ and $-Z_2$, while particle 3 has
+charge $+Z_3$, with $Z_i>0$ for $i=1,2,3$. In atomic units, and considering
+only Coulomb interactions, the Hamiltonian for this system is 
+\begin{equation}
+H^{\prime }=\sum_{r=1}^3\frac{\mathbf{p}_r^{\prime 2}}{2m_r}-\frac{Z_1Z_3}{%
+R_1}-\frac{Z_2Z_3}{R_2}+\frac{Z_1Z_2}R.  \label{e1}
+\end{equation}
+
+The associated canonical equations of motion read 
+\begin{equation}
+\frac{dq_r^{\prime }}{dt}=\frac{\partial H^{\prime }}{\partial p_r^{\prime }}%
+,\qquad \frac{dp_r^{\prime }}{dt}=-\frac{\partial H^{\prime }}{\partial
+q_r^{\prime }}\qquad (r=1,2,\ldots ,9).  \label{e2}
+\end{equation}
+
+It is quite clear that the Hamiltonian from Eq. (\ref{e1}) is singular
+whenever any of the interparticle distances ($R$, $R_1$ or $R_2$) vanishes.
+From a strictly numerical standpoint, we will have problems when any of
+those distances becomes very small, even if it does not strictly vanish,
+since in Eq. (\ref{e1}) terms with very different magnitudes will have to be
+added.
+
+\section{Regularization procedure}
+
+One standard way of avoiding the problems associated to binary collisions in
+the Hamiltonian (\ref{e1}) ---the three-particle collision cannot be
+regularized--- was developed by Aarseth and Zare \cite{Aarseth}, based on
+previous work by Kustaanheimo and Steifel \cite{Kust}. We will sketch here
+this procedure, whose detailed description can be found in \cite{Aarseth},
+and more concisely in \cite{Richter(clasicos)}.
+
+The basic idea is to obtain a canonical transformation which gives the
+Hamiltonian a non-singular form in the case of binary collisions, albeit at
+the expense of producing a set of dynamical equations significantly more
+complex in their algebraic expression. The resulting set of coordinates and
+momenta will be called regularized coordinates $(Q,P)$.
+
+\subsection{Relative coordinates and extension of phase space}
+
+Briefly, in order to go from the $(q^{\prime },p^{\prime })$ to the $(Q,P)$
+we first change to variables relative to $m_3$ with 
+\begin{equation}
+\begin{array}{lc}
+\mathbf{q}_k=\mathbf{q}_k^{\prime }-\mathbf{q}_3^{\prime }\quad \quad & 
+(k=1,2) \\ 
+\mathbf{p}_k=\mathbf{p}_k^{\prime }\quad \quad & (k=1,2) \\ 
+\mathbf{q}_3=\mathbf{q}_3^{\prime } &  \\ 
+\mathbf{p}_3=\mathbf{p}_1^{\prime }+\mathbf{p}_2^{\prime }+\mathbf{p}%
+_3^{\prime }. & 
+\end{array}
+\label{e3}
+\end{equation}
+
+We see from Eq. (\ref{e3}) that $\mathbf{p}_3$ is the total momentum of the
+system. We may then, without loss of generality, assume that in the original
+system $(q^{\prime },p^{\prime })$ the center of mass is at rest, and we
+take it to be, for the sake of algebraic convenience, located at the origin.
+This eliminates six variables from our equations, and leaves us with a
+two-particle problem, which is however \emph{not} further reducible to an
+equivalent one-particle description.
+
+We next expand the dimension of the phase space by renaming variables
+according to 
+\begin{equation}
+q_r\rightarrow q_{r+1},\quad \quad p_r\rightarrow p_{r+1}\quad \quad
+(r=4,5,6),  \label{e4}
+\end{equation}
+leaving the variables with $r\leq 3$ as before and defining the mock
+coordinates and momenta 
+\begin{equation}
+q_4\equiv 0,\quad \quad q_8\equiv 0,\quad \quad p_4\equiv 0,\quad \quad
+p_8\equiv 0.  \label{e5}
+\end{equation}
+
+A discussion regarding the need for this extension can be found in \cite
+{Aarseth}.
+
+\subsection{Regularized coordinates and new time}
+
+We now introduce the regularized coordinates through a canonical
+transformation of the $(\mathbf{q},\mathbf{p})$ to the $(\mathbf{Q},\mathbf{P%
+})$ associated to a generating function 
+\begin{equation}
+W=W(\mathbf{p},\mathbf{Q})=\sum_{r=1}^8p_rf_r(\mathbf{Q}),  \label{e5b}
+\end{equation}
+using the notation 
+\begin{equation}
+\mathbf{p}=(p_1,p_2,p_3,p_4,p_5,p_6,p_7,p_8),\mathbf{Q}%
+=(Q_1,Q_2,Q_3,Q_4,Q_5,Q_6,Q_7,Q_8).
+\end{equation}
+
+The $f_r(\mathbf{Q})$ are continuous, differentiable functions yet
+unspecified, but which must obey the conditions 
+\begin{eqnarray}
+f_r &=&f_r(Q_1,Q_2,Q_3,Q_4)\quad \quad (r\leq 4),  \label{e5c} \\
+f_r &=&f_r(Q_5,Q_6,Q_7,Q_8)\quad \quad (r>4).  \label{e5cc}
+\end{eqnarray}
+
+Let $\mathbf{A}$ be the matrix with components 
+\begin{equation}
+A_{rs}=\frac{\partial f_s}{\partial Q_r},
+\end{equation}
+and $\mathbf{A}_1,$ $\mathbf{A}_2$ its two non-zero blocks located on the
+diagonal.
+
+If we assume the $f_r(\mathbf{Q})$ to be such that 
+\begin{equation}
+\mathbf{A}_k\mathbf{A}_k^T=\lambda _kR_k\mathbf{I}\qquad (k=1,2)  \label{e5d}
+\end{equation}
+where the $\lambda _k$ are real numbers, $\mathbf{I}$ is the $4\times 4$
+identity matrix and $T$ represents matrix transposition, we can write our
+Hamiltonian as 
+\begin{equation}
+\widetilde{H}\left( \mathbf{Q},\mathbf{P}\right) =\frac{\mathbf{P}_1^2}{2\mu
+_{13}\lambda _1R_1}+\frac{\mathbf{P}_2^2}{2\mu _{23}\lambda _2R_2}+\frac{%
+\mathbf{P}_1^T\mathbf{A}_1\mathbf{A}_2^T\mathbf{P}_2}{m_3\lambda _1\lambda
+_2R_1R_2}-\frac{Z_1Z_3}{R_1}-\frac{Z_2Z_3}{R_2}+\frac{Z_1Z_2}R,  \label{e6a}
+\end{equation}
+where 
+\begin{equation}
+\mathbf{P}_1=(P_1,P_2,P_3,P_4),\quad \quad \mathbf{P}_2=(P_5,P_6,P_7,P_8).
+\end{equation}
+
+Now, if in a system described by a time independent Hamiltonian $H$ with
+parameter \emph{$t,$} we include \emph{$t$} as a coordinate and introduce a
+new time parameter $\tau $, the new Hamiltonian $H^{*}$ will be given by 
+\begin{equation}
+H^{*}=\left( H-E\right) \frac{dt}{d\tau },
+\end{equation}
+being $E$ the total energy of the system.
+
+Therefore, by taking 
+\begin{equation}
+dt=R_1R_2d\tau
+\end{equation}
+we may avoid the divergences in Eq. (\ref{e6a}) associated to $R_i\approx
+0,\,i=1,2$.
+
+In order for the regularization procedure to actually work we must now
+provide a set $\left\{ f_r(\mathbf{Q})\right\} $ of functions which
+satisfies the requested conditions, Eqs. (\ref{e5c}), (\ref{e5cc}) and (\ref
+{e5d}) . One such set is given by the Kustaanheimo-Steifel transformations,
+defined as 
+\begin{equation}
+\begin{array}{ll}
+f_1=Q_1^2-Q_2^2-Q_3^2+Q_4^2,\quad \quad & f_5=Q_5^2-Q_6^2-Q_7^2+Q_8^2, \\ 
+f_2=2\,(Q_1Q_2-\,Q_3Q_4),\quad \quad & f_6=2(Q_5Q_6-\,Q_7Q_8), \\ 
+f_3=2\,(Q_1Q_3+\,Q_2Q_4),\quad \quad & f_7=2(Q_5Q_7+Q_6Q_8), \\ 
+f_4=0,\quad \quad & f_8=0,
+\end{array}
+\end{equation}
+which lead to condition (\ref{e5d}) being valid with $\lambda _1=\lambda
+_2=4 $. The resulting regularized Hamiltonian is finally given by 
+\begin{equation}
+\begin{array}{r}
+\Gamma (\mathbf{Q},\mathbf{P})=\dfrac{R_2}{8\mu _{13}}\mathbf{P}_1^2+\dfrac{%
+R_1}{8\mu _{23}}\mathbf{P}_2^2+\dfrac 1{16m_3}\mathbf{P}_1^T\mathbf{A}_1%
+\mathbf{A}_2^T\mathbf{P}_2 \\ 
+-Z_3\left( R_1Z_2+R_2Z_1\right) +R_1R_2\left( \dfrac{Z_1Z_2}R-E\right) ,
+\end{array}
+\label{f7}
+\end{equation}
+where the reduced masses with respect to $m_3$ are 
+\begin{equation}
+\mu _{13}=\frac{m_1m_3}{m_1+m_3},\qquad \mu _{23}=\frac{m_2m_3}{m_2+m_3}.
+\label{f8}
+\end{equation}
+
+The canonical equations of motion associated to Eq. (\ref{f7}) are then 
+\begin{equation}
+\frac{dQ_r}{d\tau }=\frac{\partial \Gamma }{\partial P_r},\qquad \frac{dP_r}{%
+d\tau }=-\frac{\partial \Gamma }{\partial Q_r}\qquad (r=1,2,\ldots ,8).
+\label{f9}
+\end{equation}
+
+The explicit form of the above equations for the general three dimensional
+case is quite cumbersome, although easily obtained with a symbolic
+manipulation program (such as Maple or Mathematica). It is nonetheless
+useful to note that the derivatives $\partial R/\partial Q_i$ can be
+expressed in a compact form which is more efficient for numerical purposes
+than the one obtained by direct differentiation. By defining the $8\times 1$
+column vector $\mathbf{g}$ as 
+\begin{equation}
+\mathbf{g}=\left[ 
+\begin{array}{c}
+\mathbf{f}_1-\mathbf{f}_2 \\ 
+\mathbf{f}_2-\mathbf{f}_1
+\end{array}
+\right]  \label{e18}
+\end{equation}
+where the vectors $\mathbf{f}_1$ and $\mathbf{f}_2$ are 
+\begin{equation}
+\mathbf{f}_1=\left[ 
+\begin{array}{c}
+Q_1^2-Q_2^2-Q_3^2+Q_4^2 \\ 
+2\,(Q_1Q_2-\,Q_3Q_4) \\ 
+2\,(Q_1Q_3+\,Q_2Q_4) \\ 
+0
+\end{array}
+\right] ,\quad \quad \mathbf{f}_2=\left[ 
+\begin{array}{c}
+Q_5^2-Q_6^2-Q_7^2+Q_8^2 \\ 
+2(Q_5Q_6-\,Q_7Q_8) \\ 
+2(Q_5Q_7+Q_6Q_8) \\ 
+0
+\end{array}
+\right] ,  \label{e16}
+\end{equation}
+one can verify that the following relations hold \cite{Perez}: 
+\begin{equation}
+\frac{\partial R}{\partial Q_i}=\frac 1R(\mathbf{Ag})_i,\qquad (i=1,2,\ldots
+,8).  \label{e20}
+\end{equation}
+
+\subsection{Transformation equations}
+
+The explicit expressions for the transformations to regularized coordinates,
+resulting from the above definitions, are 
+\begin{equation}
+\begin{array}{l}
+Q_1=\left[ \frac 12(\left| \mathbf{q}_1\right| +q_1)\right] ^{1/2} \\ 
+Q_2=q_2/2Q_1 \\ 
+Q_3=q_3/2Q_1 \\ 
+Q_4=0,
+\end{array}
+\label{e6}
+\end{equation}
+for $q_1\geq 0$ or 
+\begin{equation}
+\begin{array}{l}
+Q_2=\left[ \frac 12(\left| \mathbf{q}_1\right| -q_1)\right] ^{1/2} \\ 
+Q_1=q_2/2Q_1 \\ 
+Q_3=0 \\ 
+Q_4=q_3/2Q_2,
+\end{array}
+\label{e7}
+\end{equation}
+for $q_1<0.$ For the variables $(Q_5,Q_6,Q_7,Q_8)$ we have analogous
+expressions, obtained by adding 4 to all indices and replacing $\mathbf{q}_1$
+by $\mathbf{q}_2$.
+
+The interparticle distances $R_1,\,R_2$ and $R$, expressed in terms of the
+regularized coordinates, can be cast in the form 
+\begin{equation}
+R_1=\sum_{r=1}^4Q_r^2,\quad \quad R_2=\sum_{r=5}^8Q_r^2,  \label{e14}
+\end{equation}
+and 
+\begin{equation}
+R^2=R_1^2+R_2^2-2\mathbf{f}_1\cdot \mathbf{f}_2.  \label{e15}
+\end{equation}
+
+Finally, the regularized momenta are given by 
+\begin{equation}
+\mathbf{P}_k=\mathbf{A}_k\mathbf{p}_k\quad \quad (k=1,2),  \label{e10}
+\end{equation}
+where 
+\begin{equation}
+\mathbf{p}_1=(p_1,p_2,p_3,p_4),\quad \quad \mathbf{p}_2=(p_5,p_6,p_7,p_8).
+\label{e5a}
+\end{equation}
+
+\section{Calculation program}
+
+Through the time scale change, the effect of the regularization is to take
+very small time steps near the binary collisions ($R_1\approx 0$ or $%
+R_2\approx 0$), while keeping a non-divergent Hamiltonian. However, despite
+this intrinsically adaptive nature of the regularized formulation, numerical
+work shows that if one wishes to balance efficiency and precision, it is
+necessary to implement an adaptive step size algorithm for the differential
+equation integrator.
+
+Our program, developed in C++, uses a standard 4$^{\text{th}}$ order
+Runge-Kutta adaptive step size integrator \cite{NumRecipes} driven by a
+routine which takes care of coordinate transformations, memory storage, disk
+swapping of data and Poincar\'e section calculations. In order to improve
+the accuracy of the results, Poincar\'e sections are obtained using reverse
+integration over the trajectory to find the intersection between the orbit
+and the Poincar\'e surface instead of interpolation, a method proposed by M.
+H\'enon \cite{Henon(Poincare)}.
+
+The program attempts to be useful for interactive exploration of the TBP,
+allowing control of the parameters which define the system and the
+integration conditions such as charges, masses, positions and momenta, error
+tolerance, etc. Initial conditions are defined in laboratory coordinates,
+integration is performed in the regularized ones, and position output data
+files are generated in center of mass coordinates for viewing convenience
+(to eliminate from the plots uniform displacements of the system). Besides
+position data, the program generates files with relative coordinates,
+Poincar\'e sections and a time-energy file which, since the system is
+conservative, serves as a checkout file for numerical problems. Langmuir
+type orbits \cite{Dimitri} and Poincar\'e sections in hyperspherical
+coordinates can be obtained through menu options.
+
+Since considerable simplification of the equations of motion and coordinate
+transformations results from assuming that the three particles evolve in a
+plane, the source code includes all the expressions corresponding to both
+the two and three dimensional cases. This allows the compilation of programs
+for both types of configurations, with fast integration of the plane cases
+and a slower but general option for three dimensional studies.
+
+The resulting program, usable as a tool for numerical exploration of the
+general Coulomb TBP, produces accurate orbits in reasonable times on a
+typical desktop computer for most three dimensional configurations. Source
+code is available from the author upon request.
+
+Finally, we shall present some results obtained with the program for two
+typical three body systems, namely the Helium atom and the Positronium
+negative ion (i.e. $e^{-}e^{+}e^{-},$ abbreviated $Ps^{-}$).
+
+\section{The Helium atom}
+
+\subsection{Wannier orbits}
+
+In the so-called Wannier configuration, both electrons orbit around the
+nucleus with equal angular momentum, satisfying 
+\begin{equation}
+\mathbf{r}_1\left( t\right) =-\mathbf{r}_2\left( t\right) .
+\end{equation}
+
+It can be shown \cite{Richter(clasicos)}, that this condition leads to
+elliptic trajectories. This type of orbit was proposed as one of the first
+classical models for the Helium atom, but the presence of a diverging
+Lyapunov exponent leads to expect it to be of little significance as a
+realistic description of this system. Quantum calculations confirm this
+prediction (see \cite{Richter(clasicos)} for a discussion), which can be
+also checked numerically by performing slight variations in the initial
+conditions. Fig. 2 (a) shows a typical Wannier orbit, and in Fig. 2 (b) we
+have a horizontal displacement of $10^{-4}$ in the initial position of one
+electron, leading rapidly to ionization. This suggests that the orbit is
+unstable, as other types of perturbations to the initial conditions confirm.
+
+\subsection{Langmuir type orbits}
+
+This is another classical model for the He atom, which exhibits the shortest
+periodic orbit of this system [see Fig. 3(b)], an orbit surrounded by a
+stability island in phase space. Although strictly speaking the Langmuir
+orbit is the one just mentioned, one can study the family of orbits whose
+initial conditions exhibit the symmetry shown in Fig. 3(a). Our program can
+generate orbits of this type asking for the values of $a,$ $b$ and the total
+energy $E$: those shown in Figs. 3(b) and 3(c) are obtained with $a=1.40706$
+and $a=0.25$ respectively ($E=-1$, $b=0$ for both).
+
+The stability of these orbits in phase space can be easily seen by making a
+Poincar\'e map in terms of the hyperspherical radius $R$ defined as 
+\begin{equation}
+R=\sqrt{\left| \mathbf{r}_1\right| ^2+\left| \mathbf{r}_2\right| ^2}
+\label{hyperrad}
+\end{equation}
+and its associated canonical momentum $p_R$ \cite{Mahecha(LAMP)}. Such a map
+(with $E=-1$, $b=0$ for 28 orbits varying $a$ from 0.05 to 1.4) is shown in
+Fig. 3(d) where the ``basic'' orbit from Fig. 3(a) appears as a dot at $%
+R=1.98988$ (i.e., $a=1.40706$).
+
+Now, numerical testing with perturbations on the initial conditions which
+alter the symmetry of the configuration shows that the ``basic'' orbit is
+stabler than more complex ones. Figs. 4(a) and 4(b) were respectively
+obtained with $a=1.40706,\,b=0,\,E=-1,$ and $a=2,\,b=0,\,E=-1$ as starting
+points, introducing then a change in the $x$-coordinate of \emph{one}
+electron of magnitude $\delta x=10^{-3}$ in the first case and $\delta
+x=10^{-6}$ in the second. In Fig. 4(a) no ionization occurs with an
+integration time of $t=100$ (atomic units), while Fig. 4(b) shows
+auto-ionization after $t=45.$
+
+This result agrees with what can be inferred from the Poincar\'e map just
+discussed, for the basic orbit is surrounded by a sharply defined torus
+structure which we expect to exist in phase space even when the symmetry of
+the configuration is slightly broken, while such a structure does not exist
+for orbits around $a=2$ (i.e., $R=4$).
+
+\subsection{Asymmetric top}
+
+This is another model originally proposed by Langmuir for the He atom, where
+the electrons form an equilateral triangle which rotates rigidly around the
+nucleus. The trajectory is shown in Fig. 5(a), resulting from the initial
+conditions $\mathbf{r}_1=\left( \sqrt{3}/2,0,1/2\right) ,\,\mathbf{r}%
+_2=\left( \sqrt{3}/2,0,-1/2\right) ,\,\mathbf{p}_1=\mathbf{p}_2=\left(
+0,p_0,0\right) ,$ with $p_0=1.225.$ If these exact conditions are not given
+but the basic symmetry is maintained, non-ionizing orbits can be obtained,
+such as the one from Fig. 5(b), which has $p_0=1.4$.
+
+\subsection{Planetary configurations}
+
+This name is given to geometries where on the average $R_1\gg R_2$. They
+possess both experimental and theoretical interest (\cite{Richter(frozen)}, 
+\cite{Richter(planet)}), and can exist in various different forms. A recent
+study of these configurations ---theoretical as well as numerical--- in the
+context of a He atom in which one of the electrons is replaced by an
+antiproton, can be found in (\cite{Benvenuto}).
+
+If $L=0$ ($L$ is the total angular momentum), we obtain a family of
+configurations where the simplest one is the so called ``frozen planet'' 
+\cite{Richter(frozen)}: one electron oscillates near the nucleus and the
+other remains almost stationary further away. Slightly different conditions
+which respect $L=0$ produce orbits like the one in Fig. 6(a), while for $%
+L\neq 0$ both electrons can evolve in complete revolutions around the
+nucleus, albeit with very different frequencies: Fig. 6(b) displays one such
+trajectory.
+
+If the electrons are allowed to interact more (by not satisfying $R_1\gg R_2$
+so rigidly), this interaction can produce significant deformations on the
+orbits, but they may still exist for long periods: Fig. 6(c) was obtained
+with initial conditions $\mathbf{r}_1=\left( 1,0,0\right) ,\,\mathbf{r}%
+_2=\left( 3,0,0\right) ,\,\mathbf{p}_1=\left( 0,-1,0\right) ,\mathbf{p}%
+_2=\left( 0,0.4,0\right) $ and an integration time of $t=601$ (for a
+discussion, see \cite{Yamamoto}).
+
+Finally, three-dimensional planetary configurations are also possible, such
+as the one in Fig. 6(d).
+
+\section{The $Ps^{-}$ ion}
+
+\subsection{Langmuir orbits}
+
+Wannier orbits in the $Ps^{-}$ ion exist identical to those in the He atom
+(symmetry maintains the $e^{+}$ static in the center), and hence will not be
+shown.
+
+Langmuir type orbits, with the same geometry from Fig. 3(a) also exist in
+the $Ps^{-}$ ion, although here the $e^{+}$ oscillates in a vertical
+straight line (plots are in the center of mass system). In the $Ps^{-}$, the
+simplest orbit has a more complex geometry than in the case of He, as shown
+in Fig. 7(a), caused by the motion of the $e^{+}$ just mentioned. Here we
+also have a whole family of trajectories, whose typical aspect is that of
+Fig. 7(a).
+
+The absence of an orbit as simple as in Helium is clear in the Poincar\'e
+section in hyperspherical coordinates shown in Fig. 7(c): there is a
+``hole'' in the center of the map, around which the simplest orbit [Fig.
+7(a)] winds itself. This map seems at first sight chaotic, but this is just
+a visual effect, as can be seen by plotting only a few trajectories [Fig.
+7(d)]; a chaotic behavior would lead to these few orbits densely filling the
+entire region (or at least some subregions) instead of just tracing finite
+sets of points.
+
+Langmuir orbits in $Ps^{-}$ show even more sensitiveness to perturbations
+which destroy the symmetry of the configuration than in Helium, as can be
+easily checked numerically. Here, even the simplest configuration ionizes
+rapidly if its initial conditions are not exactly symmetrical.
+
+We must note that for three particle systems with finite masses, it is
+standard \cite{Botero} to use a different definition for hyperspherical
+coordinates than the one given for He. Although expression (\ref{hyperrad})
+remains valid for the hyperradius $R,$ and its associated canonical momentum 
+$p_R$ is constructed in the usual fashion, the vectors $\mathbf{r}_1$ and $%
+\mathbf{r}_2$ are now defined as 
+\begin{eqnarray}
+\mathbf{r}_1 &=&\mathbf{q}_2-\mathbf{q}_1, \\
+\mathbf{r}_2 &=&\sqrt{\frac{\mu _{12,3}}{\mu _{12}}}\left[ -\frac 12\left( 
+\mathbf{q}_1+\mathbf{q}_2\right) +\mathbf{q}_3\right] ,
+\end{eqnarray}
+where 
+\begin{equation}
+\mu _{12,3}=\frac{\left( m_1+m_2\right) m_3}{m_1+m_2+m_3},\quad \quad \mu
+_{12}=\frac{m_1m_2}{m_1+m_2},
+\end{equation}
+and $\mathbf{q}_1,\,\mathbf{q}_2$ and $\mathbf{q}_3$ are the position
+vectors of particles 1, 2 and 3 respectively, in the center of mass system.
+
+\subsection{Asymmetric top}
+
+The basic definitions are in this case the same as for Helium, and we also
+have non-ionizing orbits, although very sensitive to symmetry-breaking
+changes in the initial conditions [see Fig. 8].
+
+\subsection{Planetary configurations}
+
+Through numerical search, no bound planetary configurations were found for
+the $Ps^{-}$ ion, with all attempts resulting in orbits like Fig. 9(a). A
+plausible hypothesis for this phenomenon is that, since in $Ps^{-}$ the
+positive particle has charge +1, the outer electron sees a zero mean field
+from the $e^{-}e^{+}$ pair, too weak to keep it bound. In order to test the
+validity of this statement, we gave the positive particle a charge +2,
+keeping all other parameters equal: the resulting orbit, shown in Fig. 9(b),
+is bound.
+
+\section{Conclusions}
+
+A general program for the numerical integration of the classical Coulomb
+three body problem was presented, which uses regularized coordinates in
+order to obtain reliable results even in the case of close inter-particle
+encounters. The program, written in C++, permits interactive changes to all
+system parameters.
+
+In the Helium atom, we studied numerically the Wannier, Langmuir
+---oscillatory and asymmetric top--- and planetary configurations. Except
+for the last one, these are all geometries with special symmetries, and we
+found them in general to be extremely sensitive to changes in the initial
+conditions which disrupted such symmetries.
+
+Planetary configurations, not associated to any specific geometrical
+symmetry, were found to be more robust with respect to variations in the
+initial conditions. This suggests that they may occupy, with non-ionizing
+orbits, a larger region in phase space than do the aforementioned
+configurations. Since both periodic and quasi-periodic orbits were found,
+and because of their significance in phase space, they appear as important
+geometries for a semi-classical quantization of certain states of the He
+atom, especially doubly excited states with appreciably different quantum
+numbers for both electrons.
+
+With the $Ps^{-}$ ion, we found results analogous to those of Helium,
+concerning the sensitivity of all configurations with respect to the
+symmetry in the initial conditions. However, the $Ps^{-}$ ion appears
+numerically to be unstabler than Helium, with shorter self-ionization times
+and no bound planetary configurations: only the strictly symmetrical models
+lead to classically bound states. This can be regarded as a classical
+justification for the experimentally observed instability of the $Ps^{-}$
+ion \cite{Mills}.
+
+Finally, the program was recently used to confirm through numerical
+experiments, theoretical predictions concerning special geometries in
+Coulomb three body systems (\cite{Santander}, \cite{Sant-Mahe}).
+
+\section{Acknowledgments}
+
+We would like to thank professor Manuel P\'aez for very helpful discussions
+regarding computing aspects of the problem.
+
+Support from Colciencias and CIEN, under contract No. 1115-05-012-92, is
+gratefully acknowledged.
+
+\begin{thebibliography}{99}
+\bibitem{Aarseth}  S. J. Aarseth and K. Zare, Celest. Mech. \textbf{10}
+(1974) 185.
+
+\bibitem{Benvenuto}  F. Benvenuto, G. Casati and D. Shepelyansky, Phys. Rev.
+A \textbf{53} (1996) 737.
+
+\bibitem{Botero}  J. Botero, 1986. \emph{Ph.D. Thesis} (Louisiana State
+University, Departament of Physics and Astronomy). Unpublished.
+
+\bibitem{Delande}  D. Delande and A. Buchleitner, Adv. At. Mol. Opt. Phys. 
+\textbf{34} (1994) 85.
+
+\bibitem{Dimitri}  M. S. Dimitrijevi\'c and P. V. Gruji\'c, Z. Naturforsch. 
+\textbf{39a} (1984) 930.
+
+\bibitem{Gutzwiller}  M. C. Gutzwiller, 1990. \emph{Chaos in Classical and
+Quantum Mechanics} (Berlin: Springer).
+
+\bibitem{Henon(Poincare)}  M. H\'enon, Physica 5D (1982) 412.
+
+\bibitem{Kust}  P. Kustaanheimo and E. Steifel, J. Reine Angew. Math. 
+\textbf{218} (1965) 204.
+
+\bibitem{Mahecha(LAMP)}  J. Mahecha, LAMP Series Report LAMP/94/1, ICTP
+(1994).
+
+\bibitem{Mills}  A. P. Mills, Phys. Rev. Lett. \textbf{50} (1983) 671.
+
+\bibitem{Nauenberg}  M. Nauenberg, Comments At. Mol. Phys. \textbf{25}
+(1990) 151.
+
+\bibitem{Perez}  F. P\'erez, 1994. \emph{Undergraduate thesis} (Universidad
+de Antioquia, Departamento de F\'\i sica). Unpublished.
+
+\bibitem{NumRecipes}  W. H. Press et al. 1988. \emph{Numerical Recipes in C}
+(Cambridge: Cambridge University Press).
+
+\bibitem{Richter(frozen)}  K. Richter and D. Wintgen, Phys. Rev. Lett. 
+\textbf{65} (1990) 1965.
+
+\bibitem{Richter(planet)}  K. Richter and D. Wintgen, J. Phys. B: At. Mol.
+Opt. Phys. \textbf{24} (1991) L565.
+
+\bibitem{Richter(clasicos)}  K. Richter, G. Tanner and D. Wintgen, Phys.
+Rev. A \textbf{48} (1993) 4182.
+
+\bibitem{Santander}  A. Santander, 1995. \emph{Undergraduate thesis}
+(Universidad de Antioquia, Departamento de F\'\i sica). Unpublished.
+
+\bibitem{Sant-Mahe}  A. Santander, J. Mahecha and F. P\'erez. \emph{Rigid
+rotor and fixed shape solutions in the Coulombic three body problem}, Few
+Body Systems, presented for publication.
+
+\bibitem{Yamamoto}  T. Yamamoto and K. Kaneko, Phys. Rev. Lett. \textbf{70 }%
+(1993) 1928.
+\end{thebibliography}
+
+\newpage 
+
+\pagestyle{empty}\ 
+
+\textbf{{\large \textbf{FIGURE CAPTIONS}}}
+
+\smallskip\ 
+
+\textsc{Figure} 1. Geometry of the problem.
+
+\textsc{Figure} 2. Wannier orbits in the He atom. (a) Typical orbit. (b)
+Slightly perturbed trajectory.
+
+\textsc{Figure} 3. Langmuir type orbits in the He atom. (a) Geometry of the
+initial conditions. (b) Basic orbit (shortest periodic orbit in the He
+atom). (c) A more complex orbit. (d) Poincar\'e map of a family of
+trajectories in hyperspherical coordinates ($R-P_R$ plot).
+
+\textsc{Figure} 4. Perturbations on Langmuir type orbits.
+
+\textsc{Figure} 5. Asymmetric top orbits in the He atom.
+
+\textsc{Figure} 6. Planetary configurations for the He atom. (a) Variation
+on the frozen planet, $L=0$. (b) Periodic orbit with $L\neq 0$. (c) Orbit
+where the electrons are closer, and therefore may have a stronger
+interaction. (d) Three-dimensional configuration.
+
+\textsc{Figure} 7. Langmuir type orbits in the $Ps^{-}$ ion. (a) Shortest
+periodic orbit. (b) A more complex one. (c) Poincar\'e map. (d) Detail of
+the Poincar\'e map showing the regular structure of the orbits.
+
+\textsc{Figure} 8. Asymmetric top orbits for the $Ps^{-}$ ion. (a) One such
+orbit. (b) Symmetry-breaking perturbation on the initial conditions, rapidly
+leading to autoionization.
+
+\textsc{Figure} 9. Planetary configurations. (a) $Ps^{-}$ ion: no stable
+ones were found. (b) Hypothetical system with charge 2 $e^{+}$ at the
+nucleus leads to non-ionizing orbits.
+
+\end{document}
