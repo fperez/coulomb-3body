@@ -56,6 +56,6 @@ The repository contains three directories:
 
 ## License: BSD
 
-The Coulbomb Three Body code contained in this repository is released under the
+The Coulomb Three Body code contained in this repository is released under the
 terms of the Modified BSD License (also known as New or Revised or 3-Clause
 BSD). See the accompanying COPYING file for details.
